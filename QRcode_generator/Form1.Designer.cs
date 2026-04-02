@@ -32,6 +32,7 @@
             this.QRpicture = new System.Windows.Forms.PictureBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.BtnAperçu = new System.Windows.Forms.Button();
+            this.printDialog1 = new System.Windows.Forms.PrintDialog();
             ((System.ComponentModel.ISupportInitialize)(this.QRpicture)).BeginInit();
             this.SuspendLayout();
             // 
@@ -72,6 +73,10 @@
             this.BtnAperçu.UseVisualStyleBackColor = true;
             this.BtnAperçu.Click += new System.EventHandler(this.BtnAperçu_Click);
             // 
+            // printDialog1
+            // 
+            this.printDialog1.UseEXDialog = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -95,6 +100,7 @@
         private System.Windows.Forms.PictureBox QRpicture;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button BtnAperçu;
+        //private System.Windows.Forms.PrintDialog printDialog1;
     }
 }
 

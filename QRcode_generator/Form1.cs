@@ -21,12 +21,16 @@ namespace QRcode_generator
     {
         PrintDocument printDocument = new PrintDocument();
         PrintPreviewDialog previewDialog = new PrintPreviewDialog();
+        PrintDialog printDialog1 = new PrintDialog();
+        PrintDocument printDocument1 = new PrintDocument();
 
         public Form1()
         {
             InitializeComponent();
             printDocument.PrintPage += PrintDocument_PrintPage;
             previewDialog.Document = printDocument;
+            printDocument1.PrintPage += new PrintPageEventHandler(PrintDocument_PrintPage);
+
         }
 
         public static string GetTempFileName()
@@ -79,6 +83,8 @@ namespace QRcode_generator
                 float textY = y + size + 5;
 
                 e.Graphics.DrawString(textBox1.Text, new Font("Arial",12), Brushes.Black, textX, textY );
+
+
             }
         }
 
@@ -89,6 +95,15 @@ namespace QRcode_generator
                 MessageBox.Show("il faut générer un QR Code avant d'afficher l'aperçu !");
                 return;
             }
+
+            PrintDialog printDialog1 = new PrintDialog();
+            printDialog1.Document = printDocument1;
+            DialogResult result = printDialog1.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                printDocument1.Print();
+            }
+
 
             previewDialog.Width = 800;
             previewDialog.Height = 600;
