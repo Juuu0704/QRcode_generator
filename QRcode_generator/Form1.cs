@@ -63,7 +63,7 @@ namespace QRcode_generator
             {
                 int size = 80;                                             // Taille souhaitée pour le QR Code à imprimer (80x80 pixels)
 
-                int x = (e.PageBounds.Width - size) / 2;                    // Calcule la position X pour centrer le QR Code horizontalement sur la page
+                int x = (e.PageBounds.Width - size) / 50;                    // Calcule la position X pour centrer le QR Code horizontalement sur la page
                 int y = (e.PageBounds.Height - size) / 3;                   // Calcule la position Y pour centrer le QR Code verticalement sur la page
 
                 e.Graphics.DrawImage(QRpicture.Image, x, y, size, size);    // Dessine l'image du QR Code à la position calculée avec la taille spécifiée
