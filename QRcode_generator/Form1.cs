@@ -61,10 +61,10 @@ namespace QRcode_generator
         {
             if (QRpicture.Image != null)                                    // Vérifie si une image de QR Code est présente dans le contrôle PictureBox
             {
-                int size = 200;                                             // Taille souhaitée pour le QR Code à imprimer (200x200 pixels)
+                int size = 80;                                             // Taille souhaitée pour le QR Code à imprimer (80x80 pixels)
 
                 int x = (e.PageBounds.Width - size) / 2;                    // Calcule la position X pour centrer le QR Code horizontalement sur la page
-                int y = (e.PageBounds.Height - size) / 2;                   // Calcule la position Y pour centrer le QR Code verticalement sur la page
+                int y = (e.PageBounds.Height - size) / 3;                   // Calcule la position Y pour centrer le QR Code verticalement sur la page
 
                 e.Graphics.DrawImage(QRpicture.Image, x, y, size, size);    // Dessine l'image du QR Code à la position calculée avec la taille spécifiée
 
@@ -73,7 +73,7 @@ namespace QRcode_generator
                 e.Graphics.DrawRectangle(pen, x, y, size, size);
 
                 
-                Font font = new Font("Arial", 12);                                      //Définit la police
+                Font font = new Font("Arial", 9);                                      //Définit la police
                 
                 SizeF textSize = e.Graphics.MeasureString(textBox1.Text, font);         //Mesurer la largeur du texte
                 
@@ -81,7 +81,7 @@ namespace QRcode_generator
                 
                 float textY = y + size + 5;                                             //Rapprocher le texte du QR Code (5 au lieu de 10)
 
-                e.Graphics.DrawString(textBox1.Text, new Font("Arial",12), Brushes.Black, textX, textY );       //Dessine le texte centré sous le QR Code
+                e.Graphics.DrawString(textBox1.Text, new Font("Arial",9), Brushes.Black, textX, textY );       //Dessine le texte centré sous le QR Code
             }
         }
 
@@ -95,16 +95,12 @@ namespace QRcode_generator
 
             PrintDialog printDialog1 = new PrintDialog();                       // Crée une nouvelle instance de la boîte de dialogue d'impression
             printDialog1.Document = printDocument1;                             // Associe le document d'impression à la boîte de dialogue d'impression
-            DialogResult result = printDialog1.ShowDialog();                    // Affiche la boîte de dialogue d'impression et stocke le résultat (OK ou Annuler)
+            printDocument.DefaultPageSettings = printDialog1.PrinterSettings.DefaultPageSettings;        // Définit les paramètres de page par défaut du document d'impression en fonction des paramètres de l'imprimante sélectionnée dans la boîte de dialogue d'impression
+            //DialogResult result = printDialog1.ShowDialog();                    // Affiche la boîte de dialogue d'impression et stocke le résultat (OK ou Annuler)
             previewDialog.Width = 800;                                          // Définit la largeur de la boîte de dialogue d'aperçu
             previewDialog.Height = 600;                                         // Définit la hauteur de la boîte de dialogue d'aperçu
 
             previewDialog.ShowDialog();                                         // Affiche la boîte de dialogue d'aperçu avant impression
-
-            if (result == DialogResult.OK)                                      // Vérifie si l'utilisateur a cliqué sur OK dans la boîte de dialogue d'impression
-            {
-                printDocument1.Print();                                         // Lance l'impression du document associé à printDocument1, ce qui déclenchera l'événement PrintPage pour dessiner le contenu à imprimer
-            }
         }
     }
 }
