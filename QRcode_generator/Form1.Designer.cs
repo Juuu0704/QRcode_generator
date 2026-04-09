@@ -1,4 +1,6 @@
-﻿namespace QRcode_generator
+﻿using System;
+
+namespace QRcode_generator
 {
     partial class Form1
     {
@@ -92,6 +94,11 @@
             this.ResumeLayout(false);
             this.PerformLayout();
 
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

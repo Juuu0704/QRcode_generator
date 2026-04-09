@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
-using System.Windows.Forms;
 using System.Drawing.Printing;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Windows.Forms;
 
 /* ----------------------------------------------------------à télécharger --------------------------------------------------------*/
 using QRCoder;          //Projet -> Manage NuGet Packages -> Browse -> QRCoder -> Install
-
-using System.Diagnostics;
-using System.IO;
 
 namespace QRcode_generator
 {
@@ -31,30 +32,86 @@ namespace QRcode_generator
 
         }
 
+        // Clé secrète (à stocker ailleurs en prod)
+        static string secretKey = "CLEE_VR@1M3NT_SECRETE";
+
+        static string Sign(string data, string secretKey)                         //!!!!!!!!!!!!!!!!!!!!!!changer secretKey (dans un fichier pour plus de sécurité)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(data))
+                    throw new ArgumentException("Data invalide.");
+
+                if (string.IsNullOrWhiteSpace(secretKey))                  //!!!!!!!!!!!!!!!!!!!!!!changer secretKey (dans un fichier pour plus de sécurité)
+                    throw new ArgumentException("Clé secrète invalide.");
+
+                var keyBytes = Encoding.UTF8.GetBytes(secretKey);          //!!!!!!!!!!!!!!!!!!!!!!changer secretKey (dans un fichier pour plus de sécurité)
+                var dataBytes = Encoding.UTF8.GetBytes(data);
+
+                using (var hmac = new HMACSHA256(keyBytes))
+                {
+                    var hash = hmac.ComputeHash(dataBytes);
+                    return Convert.ToBase64String(hash);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la signature : {ex.Message}");
+                return null; // ou throw;
+            }
+        }
+
+        static string CreateCard(string cardid, string version, string secretKey)          //!!!!!!!!!!!!!!!!!!!!!!changer secretKey (dans un fichier pour plus de sécurité)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(cardid))
+                    throw new ArgumentException("Card ID invalide.");
+
+                if (string.IsNullOrWhiteSpace(version))
+                    throw new ArgumentException("Version invalide.");
+
+                string payload = cardid + ";" + version;
+
+                string signature = Sign(payload, secretKey);          //!!!!!!!!!!!!!!!!!!!!!!changer secretKey (dans un fichier pour plus de sécurité)
+
+                if (signature == null)
+                    throw new Exception("Échec de la signature.");
+
+                return payload + ";" + signature;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la création de la carte : {ex.Message}");
+                return null;
+            }
+        }
+
         public static string GetTempFileName()              //Méthode pour générer un nom de fichier temporaire
         {
             return System.IO.Path.GetTempFileName();        // Génère un nom de fichier temporaire unique et retourne son chemin
         }
+
+
+
+/*---------------------------------------------------------------------------------VARIABLE A MODIFIER------------------------------------------------------------------------------------------------------------------------*/
+        string variable = CreateCard("123456789", "1", secretKey);    //"123456789" = identifiant ou ISBN ; "1" = n° de version ; secretKey = clé de chiffrement
+        
+
+
+
         
         //Gestionnaire d'événement pour le clic sur le bouton de génération du QR Code
         private void button1_Click(object sender, EventArgs e)
         {
             QRCodeGenerator qrGenerator = new QRCodeGenerator();            // Crée une instance du générateur de QR Code
+
             /*---------------------penser à changer le nom de la VARIABLE qui va s'afficher--------------------------------------*/
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(textBox1.Text, QRCodeGenerator.ECCLevel.L, true);      // Génère les données du QR Code à partir du texte saisi dans textBox1, avec un niveau de correction d'erreur L (Low) et en utilisant le mode de rendu SVG
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(variable, QRCodeGenerator.ECCLevel.L, true);      // Génère les données du QR Code à partir du texte saisi dans textBox1, avec un niveau de correction d'erreur L (Low) et en utilisant le mode de rendu SVG
             QRCode qrCode = new QRCode(qrCodeData);                         // Crée une instance du QRCode à partir des données générées
 
             Bitmap qrCodeImage = qrCode.GetGraphic(5);                      // Génère une image Bitmap du QR Code avec une taille de module de 5 pixels
             QRpicture.Image = qrCodeImage;                                  // Affiche l'image du QR Code dans un contrôle PictureBox nommé QRpicture
-        }
-        public void ImageViewer(string path)                                // Méthode pour ouvrir l'explorateur de fichiers à un chemin spécifique
-        {
-            Process.Start("explorer.exe", path);                            // Ouvre l'explorateur de fichiers à l'emplacement spécifié par 'path'
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)       // Gestionnaire d'événement pour le changement de texte dans textBox1
-        {
-
         }
 
         private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)       // Gestionnaire d'événement pour dessiner le contenu à imprimer sur la page
@@ -77,11 +134,13 @@ namespace QRcode_generator
                 
                 SizeF textSize = e.Graphics.MeasureString(textBox1.Text, font);         //Mesurer la largeur du texte
                 
-                float textX = x + (size - textSize.Width) / 2;                          //Calculer le X centré par rapport au QR Code
+                float textX = x + (size - textSize.Width) / 50;                          //Calculer le X centré par rapport au QR Code
                 
                 float textY = y + size + 5;                                             //Rapprocher le texte du QR Code (5 au lieu de 10)
 
-                e.Graphics.DrawString(textBox1.Text, new Font("Arial",9), Brushes.Black, textX, textY );       //Dessine le texte centré sous le QR Code
+                string[] id = variable.Split(';');
+
+                e.Graphics.DrawString(id[0], new Font("Arial",9), Brushes.Black, textX, textY );       //Dessine le texte centré sous le QR Code
             }
         }
 
